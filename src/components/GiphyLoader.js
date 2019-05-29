@@ -17,7 +17,8 @@ class GiphyLoader extends React.Component {
       giphyResults: [],
       currentPage: 1,
       limitCount: 5,
-      searchPlaced: false
+      searchPlaced: false,
+      noMoreResults: false
     }
   }
 
@@ -48,6 +49,8 @@ class GiphyLoader extends React.Component {
           giphyResults: [],
           searchOffset: 0
         })
+        const { imageClickHandler } = this.props
+        imageClickHandler('')
       }
 
       this.fetchAndSetData(searchKeywords)
@@ -58,7 +61,7 @@ class GiphyLoader extends React.Component {
   fetchAndSetData(searchKeywords) {
     searchKeywords =
       typeof searchKeywords === 'undefined'
-        ? this.state.searchKeywords
+        ? this.state.searchKeywords || ''
         : searchKeywords
 
     let { searchOffset, giphyResults } = this.state
@@ -82,8 +85,10 @@ class GiphyLoader extends React.Component {
       searchQuery += key + '=' + encodeURIComponent(giphyUrlParam[key])
     }
 
+    const endPoint = searchKeywords !== '' ? 'search' : 'trending'
+
     // Hit the API
-    fetch(`https://api.giphy.com/v1/gifs/search?${searchQuery}`)
+    fetch(`https://api.giphy.com/v1/gifs/${endPoint}?${searchQuery}`)
       .then(res => {
         if (res.status !== 200) return []
         return res.json()
@@ -91,11 +96,13 @@ class GiphyLoader extends React.Component {
       .then(json => {
         // Update searchOffset to next if total count is greater than
         searchOffset = searchOffset + 1 * limitCount
+        const totalGiphys = json.pagination.total_count
 
         this.setState({
           isLoading: false,
           giphyResults: [...giphyResults, ...json.data],
-          searchOffset
+          searchOffset,
+          noMoreResults: searchOffset >= totalGiphys
         })
       })
       .catch(err => {
@@ -108,8 +115,18 @@ class GiphyLoader extends React.Component {
       })
   }
 
+  componentDidMount() {
+    this.fetchAndSetData()
+  }
+
   render() {
-    const { isLoading, searchPlaced, giphyResults, searchParam } = this.state
+    const {
+      isLoading,
+      searchPlaced,
+      giphyResults,
+      searchParam,
+      noMoreResults
+    } = this.state
 
     // PROPS DRILLING!
     const { imageClickHandler } = this.props
@@ -138,14 +155,19 @@ class GiphyLoader extends React.Component {
 
           {searchPlaced && (
             <div className="giphy-container">
+              {searchParam === '' && (
+                <span className="trending">Trending!</span>
+              )}
               {htmlGiphyResults}
               {!isLoading && giphyResults.length === 0 && (
                 <h4>No GIF Found!</h4>
               )}
               {isLoading && <Loader />}
-              <a className="btn btn-show-more" onClick={this.fetchAndSetData}>
-                Show More >>
-              </a>
+              {!isLoading && !noMoreResults && (
+                <a className="btn btn-show-more" onClick={this.fetchAndSetData}>
+                  Show More >>
+                </a>
+              )}
             </div>
           )}
         </div>

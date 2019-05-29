@@ -1,7 +1,7 @@
 import React from 'react'
 
 const Loader = () => {
-  return <span>Loading...</span>
+  return <div className="loader" />
 }
 
 export default Loader

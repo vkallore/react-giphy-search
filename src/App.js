@@ -43,6 +43,7 @@ class App extends React.Component {
                   alt="Selected Giphy"
                   className="giphy-selected"
                 />
+                <div className="caption">Preview</div>
               </div>
             )}
           </div>
