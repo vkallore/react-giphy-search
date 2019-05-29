@@ -1,0 +1,67 @@
+$container-width: 400px;
+
+.App-header {
+  background-color: #282c34;
+  min-height: 10vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.card {
+  padding: 1rem;
+  margin: 0 auto;
+  width: $container-width;
+}
+
+.card textarea {
+  width: $container-width;
+  height: 100px;
+  display: inline-block;
+  clear: both;
+}
+
+.btn {
+  display: block;
+  color: #777;
+  cursor: pointer;
+  border: 1px solid #ddd;
+  padding: 5px 10px;
+  width: 100px;
+  font-size: 14px;
+  line-height: 28px;
+  text-align: left;
+}
+
+.btn.active {
+  background-color: #eee;
+  color: #000;
+}
+
+span.label {
+  background-color: #ccc;
+  color: #fff;
+  padding: 0.25rem;
+  margin: 0 0.25rem;
+  font-size: 10px;
+}
+
+.input-w-200 {
+  padding: 5px;
+  width: 200px;
+}
+
+.giphy-thumb {
+  padding: 5px 0;
+}
+.giphy-thumb img {
+  max-width: 200px;
+  height: auto;
+}
+
+#scrollFinder {
+  height: 20px;
+}

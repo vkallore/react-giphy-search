@@ -1,5 +1,15 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## `.env` file contents
+
+Create .env file before running the project!
+
+```
+REACT_APP_GIPHY_API_KEY=YOUR_GIPHY_API_KEY
+REACT_APP_NODE_PATH=src/
+NODE_PATH=src/
+```
+
 ## Available Scripts
 
 In the project directory, you can run:
