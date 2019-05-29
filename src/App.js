@@ -8,8 +8,10 @@ class App extends React.Component {
     super()
 
     this.showGiphy = this.showGiphy.bind(this)
+    this.setSelectedGiphy = this.setSelectedGiphy.bind(this)
     this.state = {
-      showGiphy: false
+      showGiphy: false,
+      selectedGiphy: ''
     }
   }
 
@@ -18,8 +20,12 @@ class App extends React.Component {
     this.setState({ showGiphy: !showGiphy })
   }
 
+  setSelectedGiphy(giphyUrl) {
+    this.setState({ selectedGiphy: giphyUrl })
+  }
+
   render() {
-    const { showGiphy } = this.state
+    const { showGiphy, selectedGiphy } = this.state
     const classGiphyActive = showGiphy ? 'active' : ''
     return (
       <div className="App">
@@ -30,10 +36,19 @@ class App extends React.Component {
             <a className={`btn ${classGiphyActive}`} onClick={this.showGiphy}>
               <span className="label label-gif">GIF</span>GIF
             </a>
-            {/* <div className="giphy-preview">
-          </div> */}
+            {selectedGiphy !== '' && (
+              <div className="giphy-preview">
+                <img
+                  src={selectedGiphy}
+                  alt="Selected Giphy"
+                  className="giphy-selected"
+                />
+              </div>
+            )}
           </div>
-          {showGiphy && <GiphyLoader />}
+          {showGiphy && (
+            <GiphyLoader imageClickHandler={this.setSelectedGiphy} />
+          )}
         </div>
       </div>
     )

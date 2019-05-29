@@ -37,6 +37,19 @@ class GiphyLoader extends React.Component {
 
     // Debounce to avoid hitting the API while typing
     debounce(() => {
+      const { prevSearchParam } = this.state
+      // Avoid hitting API if search keywords remain same before debounce
+      if (searchKeywords === prevSearchParam) {
+        return
+      } else {
+        // If keywords changed, reset values
+        this.setState({
+          prevSearchParam: searchKeywords,
+          giphyResults: [],
+          searchOffset: 0
+        })
+      }
+
       this.fetchAndSetData(searchKeywords)
     }, 1000)()
   }
@@ -49,19 +62,10 @@ class GiphyLoader extends React.Component {
         : searchKeywords
 
     let { searchOffset, giphyResults } = this.state
-    const { limitCount, prevSearchParam } = this.state
-    console.log(searchKeywords === prevSearchParam)
-    // Avoid hitting API if search keywords remain same before debounce
-    if (searchKeywords === prevSearchParam) {
-      return
-    } else {
-      // If keywords changed, reset values
-      giphyResults = []
-      searchOffset = 0
-    }
+    const { limitCount } = this.state
 
     // Set as loading
-    this.setState({ isLoading: true })
+    this.setState({ isLoading: true, searchPlaced: true })
 
     // Construct the query params
     const giphyUrlParam = {
@@ -86,12 +90,11 @@ class GiphyLoader extends React.Component {
       })
       .then(json => {
         // Update searchOffset to next if total count is greater than
-        console.log({ ...giphyResults, ...json.data })
+        searchOffset = searchOffset + 1 * limitCount
+
         this.setState({
           isLoading: false,
-          searchPlaced: true,
           giphyResults: [...giphyResults, ...json.data],
-          prevSearchParam: searchKeywords,
           searchOffset
         })
       })
@@ -100,8 +103,6 @@ class GiphyLoader extends React.Component {
         console.log(err)
         this.setState({
           isLoading: false,
-          searchPlaced: true,
-          prevSearchParam: searchKeywords,
           searchOffset
         })
       })
@@ -109,11 +110,19 @@ class GiphyLoader extends React.Component {
 
   render() {
     const { isLoading, searchPlaced, giphyResults, searchParam } = this.state
-    console.log(typeof giphyResults)
+
+    // PROPS DRILLING!
+    const { imageClickHandler } = this.props
+
     const htmlGiphyResults = giphyResults.map(giphyResult => {
       const giphyId = giphyResult.id
       return (
-        <GiphyImg key={giphyId} data={giphyResult} searchParam={searchParam} />
+        <GiphyImg
+          key={giphyId}
+          data={giphyResult}
+          searchParam={searchParam}
+          onClick={imageClickHandler}
+        />
       )
     })
     return (
@@ -127,14 +136,18 @@ class GiphyLoader extends React.Component {
             value={searchParam}
           />
 
-          <div className="giphy-container">
-            {htmlGiphyResults}
-            {searchPlaced && giphyResults.length === 0 && (
-              <h4>No GIF Found!</h4>
-            )}
-            {isLoading && <Loader />}
-            <div id="scrollFinder" />
-          </div>
+          {searchPlaced && (
+            <div className="giphy-container">
+              {htmlGiphyResults}
+              {!isLoading && giphyResults.length === 0 && (
+                <h4>No GIF Found!</h4>
+              )}
+              {isLoading && <Loader />}
+              <a className="btn btn-show-more" onClick={this.fetchAndSetData}>
+                Show More >>
+              </a>
+            </div>
+          )}
         </div>
       </>
     )
@@ -142,6 +155,12 @@ class GiphyLoader extends React.Component {
 }
 
 let timeout
+
+/**
+ * Handle debounce
+ * @param {*} func
+ * @param {*} wait
+ */
 const debounce = (func, wait) => {
   return function() {
     const context = this,
